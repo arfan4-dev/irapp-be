@@ -20,6 +20,7 @@ const transporter = nodemailer.createTransport({
 export const userController = {
     createUser: async (req, res) => {
         try {
+
             // const imagePath = req.file ? `/public/temp/${req.file.filename}` : null;
 
             const { error } = validateUser(req.body);
@@ -40,7 +41,6 @@ export const userController = {
                 JWT_ACCESS_TOKEN_SECRET_KEY,
                 { expiresIn: '24h' }
             );
-
             const user = new User({
                 username: req.body.username,
                 email: req.body.email,
@@ -266,6 +266,7 @@ export const userController = {
             res.status(500).json({ success: false, message: err.message });
         }
     },
+
 
     logoutUser: async (req, res) => {
         try {

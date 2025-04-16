@@ -10,7 +10,7 @@ export default [
       },
     },
     rules: {
-      'no-console': ['error', { allow: ['warn', 'error','log'] }], // Allow console.warn and console.error
+      'no-console': ['error', { allow: ['warn', 'error', 'log'] }], // Allow console.warn and console.error
       'no-unused-vars': ['off', {
         vars: 'all', // Check all
         args: 'after-used', // Ignore unused variables after they are used
