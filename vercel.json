@@ -1,8 +1,16 @@
 {
-    "rewrites": [
+    "version": 2,
+    "name": "Backend",
+    "builds": [
         {
-            "source": "/(.*)",
-            "destination": "/"
+            "src": "app.js",
+            "use": "@vercel/node"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "/app.js"
         }
     ]
 }
