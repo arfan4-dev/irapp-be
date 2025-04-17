@@ -44,6 +44,7 @@ export const userController = {
             const user = new User({
                 username: req.body.username,
                 email: req.body.email,
+                role: req.body.role,
                 password: hashedPassword,
                 verificationToken,
                 image: imagePath, // ✅ add this field in your User model

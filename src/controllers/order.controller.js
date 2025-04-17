@@ -19,13 +19,8 @@ export const createOrder = asyncHandler(async (req, res) => {
 
 // Get orders for logged-in user
 export const getAllOrders = asyncHandler(async (req, res) => {
-    const userId = req.params.id;
 
-    if (!userId) {
-        throw new ApiError(400, 'User ID is required');
-    }
-
-    const orders = await Order.find({ userId });
+    const orders = await Order.find();
     return res
         .status(200)
         .json(new ApiResponse(200, orders, 'User orders fetched successfully'));

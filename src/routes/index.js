@@ -37,6 +37,6 @@ router.delete('/categories/:id/items', removeItemFromCategory);// DELETE /api/ca
 
 // Order routes
 router.post('/order', createOrder);
-router.get('/order/:id', getAllOrders);
+router.get('/order/all', getAllOrders);
 router.put('/order/:id', updateOrderStatus);
 export default router;
