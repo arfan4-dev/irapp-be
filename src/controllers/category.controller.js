@@ -7,10 +7,11 @@ import { validateCategory } from '../validation/category.validation.js';
 export const createCategory = async (req, res) => {
     const { error } = validateCategory(req.body);
     if (error) return res.status(400).json({ success: false, message: error.details[0].message });
+    console.log(req.body);
 
     const category = new Category({
         label: req.body.label,
-       
+
     });
 
     await category.save();
@@ -22,12 +23,11 @@ export const createCategory = async (req, res) => {
 export const getAllCategories = async (req, res) => {
     try {
         const categories = await Category.find();
-        console.log("hello");
-        
+
         res.json({ success: true, data: categories });
     } catch (err) {
         console.log("Error fetching categories:", err.message);
-        
+
         res.status(500).json({ success: false, message: err });
     }
 };
@@ -80,6 +80,8 @@ export const addItemToCategory = async (req, res) => {
 export const removeItemFromCategory = async (req, res) => {
     try {
         const { itemName } = req.body;
+        console.log(itemName);
+
         const updated = await Category.findByIdAndUpdate(
             req.params.id,
             {
