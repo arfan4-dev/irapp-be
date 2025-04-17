@@ -32,11 +32,11 @@ app.use(
 
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ extended: true, limit: '50mb' }))
-// app.use(express.static('public'))
+app.use(express.static('public'))
 // Passport Middleware
 app.use(passport.initialize());
 // Cookie Parser
-// app.use(express.static(path.join(process.cwd(), "public")));
+app.use(express.static(path.join(process.cwd(), "public")));
 
 app.use(cookieParser())
 app.use(logger); // Custom morgan logger
