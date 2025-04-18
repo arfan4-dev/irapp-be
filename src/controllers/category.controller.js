@@ -109,3 +109,22 @@ export const removeItemFromCategory = async (req, res) => {
         res.status(500).json({ success: false, message: err.message });
     }
 };
+
+
+export const updateItemInCategory =async (req, res) => {
+    const { id } = req.params;
+    const { oldItemName, newItem } = req.body;
+
+    const updated = await Category.findOneAndUpdate(
+        { _id: id, "items.name": oldItemName },
+        {
+            $set: {
+                "items.$.name": newItem.name,
+                "items.$.allowMultiple": newItem.allowMultiple,
+            }
+        },
+        { new: true }
+    );
+
+    res.json({ success: true, data: updated });
+};

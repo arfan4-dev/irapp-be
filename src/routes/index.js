@@ -8,7 +8,8 @@ import {
     deleteCategory,
     updateCategoryLabel,
     addItemToCategory,
-    removeItemFromCategory
+    removeItemFromCategory,
+    updateItemInCategory
 } from '../controllers/category.controller.js';
 import {
     createOrder,
@@ -36,6 +37,7 @@ router.delete('/categories/:id', deleteCategory);              // DELETE /api/ca
 router.put('/categories/:id', updateCategoryLabel);            // PUT /api/category/:id
 router.post('/categories/:id/items', addItemToCategory);       // POST /api/category/:id/items
 router.delete('/categories/:id/items', removeItemFromCategory);// DELETE /api/category/:id/items
+router.put('/categories/:id/items', updateItemInCategory);
 
 // Order routes
 router.post('/order', createOrder);
