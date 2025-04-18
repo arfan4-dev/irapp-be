@@ -18,12 +18,14 @@ import {
 const router = express.Router();
 
 // Auth routes
-router.post('/user',upload.single('image'), userController.createUser);
+router.post('/user', upload.single('image'), userController.createUser);
 router.post('/login', userController.loginUser);
 router.post('/verify', userController.verifyEmail);
 router.post('/logout', userController.logoutUser);
 router.get('/refresh-token', userController.refreshToken);
 router.put('/update-user/:id', upload.single('image'), userController.updateUser);
+router.post('/verify-password', authMiddleware, userController.verifyPassword);
+
 // ✅ Protected route
 router.get('/:id', authMiddleware, userController.getUser);
 

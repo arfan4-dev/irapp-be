@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import Token from '../models/token.model.js';
 import nodemailer from 'nodemailer';
 import { JWT_ACCESS_TOKEN_SECRET_KEY, CLIENT_URL } from '../config/env.config.js';
+import { asyncHandler } from '../utils/api.utils.js';
 
 const SALT_ROUNDS = 10;
 
@@ -248,6 +249,20 @@ export const userController = {
             res.status(500).json({ success: false, message: 'Server error', error: error.message });
         }
     },
+    verifyPassword : asyncHandler(async (req, res) => {
+        const { password,user } = req.body;
+        console.log(user);
+        
+        const newUser = await User.findById({ _id: user.id }); // use req.user from authMiddleware
+        console.log(newUser);
+        const isMatch = await bcrypt.compare(password, newUser.password);
+        
+        if (!isMatch) {
+            return res.status(401).json({ success: false, message: "Invalid password" });
+        }
+
+        res.json({ success: true, message: "Password verified" });
+    }),
 
     updateUser: async (req, res) => {
         try {

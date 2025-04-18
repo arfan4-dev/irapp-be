@@ -5,17 +5,32 @@ import { validateCategory } from '../validation/category.validation.js';
 
 // ➕ Create category
 export const createCategory = async (req, res) => {
-    const { error } = validateCategory(req.body);
-    if (error) return res.status(400).json({ success: false, message: error.details[0].message });
-    console.log(req.body);
+    try {
+        const { error } = validateCategory(req.body);
+        if (error) {
+            return res.status(400).json({
+                success: false,
+                message: error.details[0].message,
+            });
+        }
 
-    const category = new Category({
-        label: req.body.label,
+        const category = new Category({
+            label: req.body.label,
+        });
 
-    });
+        await category.save();
 
-    await category.save();
-    res.status(201).json({ success: true, data: category });
+        res.status(201).json({
+            success: true,
+            data: category,
+        });
+    } catch (err) {
+        console.error("Error creating category:", err);
+        res.status(500).json({
+            success: false,
+            message: "Server error while creating category",
+        });
+    }
 };
 
 
@@ -26,9 +41,9 @@ export const getAllCategories = async (req, res) => {
 
         res.json({ success: true, data: categories });
     } catch (err) {
-        console.log("Error fetching categories:", err.message);
+        console.log("Error fetching categories:", err.errmsg);
 
-        res.status(500).json({ success: false, message: err });
+        res.status(500).json({ success: false, message: err.errmsg });
     }
 };
 
