@@ -33,7 +33,7 @@ export const userController = {
                 $or: [{ email: req.body.email }, { username: req.body.username }]
             });
             if (existingUser) {
-                return res.status(400).json({ success: false, message: 'User with this email or username already exists' });
+                return res.status(400).json({ success: false, message: 'Email or username already exists' });
             }
 
             const hashedPassword = await bcrypt.hash(req.body.password, SALT_ROUNDS);
