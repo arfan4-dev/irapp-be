@@ -102,15 +102,116 @@ export const userController = {
         }
     },
 
+    // loginUser: async (req, res) => {
+    //     try {
+    //         const { email, password } = req.body;
+
+    //         const user = await User.findOne({ email });
+    //         if (!user) {
+    //             return res.status(404).json({ success: false, message: 'User not found' });
+    //         }
+
+    //         if (!user.isVerified) {
+    //             const verificationToken = jwt.sign(
+    //                 { email: user.email },
+    //                 JWT_ACCESS_TOKEN_SECRET_KEY,
+    //                 { expiresIn: '24h' }
+    //             );
+
+    //             user.verificationToken = verificationToken;
+    //             await user.save();
+
+    //             const verificationLink = `${req.headers.origin}/verify-email/${verificationToken}`;
+    //             const mailOptions = {
+    //                 from: process.env.EMAIL,
+    //                 to: user.email,
+    //                 subject: 'Verify Your Email to Login',
+    //                 html: `<p>You need to verify your email to login. Click the link below:</p>
+    //                    <a href="${verificationLink}">Verify Email</a>
+    //                    <p>This link will expire in 24 hours.</p>`
+    //             };
+
+    //             await transporter.sendMail(mailOptions);
+
+    //             return res.status(403).json({
+    //                 success: false,
+    //                 message: 'Please verify your email before logging in. A new verification link has been sent to your email.'
+    //             });
+    //         }
+
+    //         const isPasswordMatch = await bcrypt.compare(password, user.password);
+    //         if (!isPasswordMatch) {
+    //             return res.status(401).json({ success: false, message: 'Invalid password' });
+    //         }
+
+    //         const accessToken = jwt.sign(
+    //             { id: user._id, email: user.email },
+    //             JWT_ACCESS_TOKEN_SECRET_KEY,
+    //             { expiresIn: '15m' } // Access token expiration (1 minute for demo)
+    //         );
+    //         const refreshToken = jwt.sign(
+    //             { id: user._id, email: user.email },
+    //             JWT_ACCESS_TOKEN_SECRET_KEY,
+    //             { expiresIn: '7d' } // Refresh token expiration (7 days)
+    //         );
+
+    //         // Save the refreshToken in the database
+    //         const tokenDoc = new Token({
+    //             userId: user._id,
+    //             token: refreshToken // Save the refresh token in the database
+    //         });
+    //         await tokenDoc.save();
+
+    //         // Set tokens in cookies
+    //         res.cookie('accessToken', accessToken, {
+    //             httpOnly: false, // Security: Prevent JavaScript access
+    //             secure: process.env.NODE_ENV === 'production', // Only HTTPS in production
+    //             maxAge: 15 * 60 * 1000 // 1 minute in milliseconds
+    //         });
+    //         res.cookie('refreshToken', refreshToken, {
+    //             httpOnly: false, // Security: Prevent JavaScript access
+    //             secure: process.env.NODE_ENV === 'production',
+    //             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
+    //         });
+
+    //         res.status(200).json({
+    //             success: true,
+    //             data: {
+    //                 id: user._id,
+    //                 username: user.username,
+    //                 email: user.email,
+    //                 role: user.role,
+    //                 fullName: user.fullName,
+    //                 changePassword: user.mustChangePassword,
+    //                 token: accessToken
+    //             }
+    //         });
+    //     } catch (error) {
+    //         res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    //     }
+    // },
+    
     loginUser: async (req, res) => {
         try {
             const { email, password } = req.body;
 
-            const user = await User.findOne({ email });
+            if (!email || !password) {
+                return res.status(400).json({ success: false, message: 'Email/Username and password are required' });
+            }
+
+            // 🔍 Find user by email OR username (case-insensitive)
+            const user = await User.findOne({
+                $or: [
+                    { email: email.toLowerCase() },
+                    { username: { $regex: new RegExp(`^${email}$`, 'i') } }
+                ]
+            });
+
             if (!user) {
                 return res.status(404).json({ success: false, message: 'User not found' });
             }
 
+            // ✅ Check if verified
             if (!user.isVerified) {
                 const verificationToken = jwt.sign(
                     { email: user.email },
@@ -127,54 +228,50 @@ export const userController = {
                     to: user.email,
                     subject: 'Verify Your Email to Login',
                     html: `<p>You need to verify your email to login. Click the link below:</p>
-                       <a href="${verificationLink}">Verify Email</a>
-                       <p>This link will expire in 24 hours.</p>`
+               <a href="${verificationLink}">Verify Email</a>
+               <p>This link will expire in 24 hours.</p>`
                 };
 
                 await transporter.sendMail(mailOptions);
 
                 return res.status(403).json({
                     success: false,
-                    message: 'Please verify your email before logging in. A new verification link has been sent to your email.'
+                    message: 'Please verify your email before logging in. A new verification link has been sent.'
                 });
             }
 
+            // ✅ Match password
             const isPasswordMatch = await bcrypt.compare(password, user.password);
             if (!isPasswordMatch) {
                 return res.status(401).json({ success: false, message: 'Invalid password' });
             }
 
+            // 🔐 Create Tokens
             const accessToken = jwt.sign(
                 { id: user._id, email: user.email },
                 JWT_ACCESS_TOKEN_SECRET_KEY,
-                { expiresIn: '15m' } // Access token expiration (1 minute for demo)
+                { expiresIn: '15m' }
             );
             const refreshToken = jwt.sign(
                 { id: user._id, email: user.email },
                 JWT_ACCESS_TOKEN_SECRET_KEY,
-                { expiresIn: '7d' } // Refresh token expiration (7 days)
+                { expiresIn: '7d' }
             );
 
-            // Save the refreshToken in the database
-            const tokenDoc = new Token({
-                userId: user._id,
-                token: refreshToken // Save the refresh token in the database
-            });
-            await tokenDoc.save();
+            await new Token({ userId: user._id, token: refreshToken }).save();
 
-            // Set tokens in cookies
             res.cookie('accessToken', accessToken, {
-                httpOnly: false, // Security: Prevent JavaScript access
-                secure: process.env.NODE_ENV === 'production', // Only HTTPS in production
-                maxAge: 15 * 60 * 1000 // 1 minute in milliseconds
+                httpOnly: false,
+                secure: process.env.NODE_ENV === 'production',
+                maxAge: 15 * 60 * 1000
             });
             res.cookie('refreshToken', refreshToken, {
-                httpOnly: false, // Security: Prevent JavaScript access
+                httpOnly: false,
                 secure: process.env.NODE_ENV === 'production',
-                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
+                maxAge: 7 * 24 * 60 * 60 * 1000
             });
 
-            res.status(200).json({
+            return res.status(200).json({
                 success: true,
                 data: {
                     id: user._id,
@@ -186,11 +283,13 @@ export const userController = {
                     token: accessToken
                 }
             });
+
         } catch (error) {
             res.status(500).json({ success: false, message: 'Server error', error: error.message });
         }
-    },
+    }
 
+,
     refreshToken: async (req, res) => {
         const refreshToken = req.cookies.refreshToken;
 
@@ -269,7 +368,7 @@ export const userController = {
         try {
             const { username, password } = req.body;
             const { id } = req.params; // from token
-
+            console.log("username, password:", username, password)
             const updateData = { username };
             if (password) {
                 updateData.password = await bcrypt.hash(password, SALT_ROUNDS);
@@ -347,7 +446,6 @@ console.log(userId,role,department);
                 { role, department },
                 { new: true }
             );
-            console.log("updatedUser:", updatedUser)
             res.status(200).json(updatedUser);
         } catch (error) {
             res.status(500).json({ message: 'Failed to update user role/department.' });
