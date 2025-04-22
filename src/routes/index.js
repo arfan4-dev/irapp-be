@@ -30,7 +30,7 @@ router.post('/verify-password', authMiddleware, userController.verifyPassword);
 router.post('/change-password/:id', userController.changePassword)
 router.put('/users/:userId/update-role', userController.updateUserRoleAndDepartment);
 router.get('/users/all', userController.fetchAllUsers); // Only accessible to admins
-router.put('/users/:userId/update-role', userController.updateUserRoleAndDepartment);
+router.put('/users/:userId/update-role-department', userController.updateUserRoleAndDepartment);
 
 // ✅ Protected route
 router.get('/:id', authMiddleware, userController.getUser);

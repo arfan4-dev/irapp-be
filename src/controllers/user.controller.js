@@ -339,6 +339,7 @@ export const userController = {
     updateUserRoleAndDepartment :async (req, res) => {
         const { userId } = req.params;
         const { role, department } = req.body;
+console.log(userId,role,department);
 
         try {
             const updatedUser = await User.findByIdAndUpdate(
@@ -346,6 +347,7 @@ export const userController = {
                 { role, department },
                 { new: true }
             );
+            console.log("updatedUser:", updatedUser)
             res.status(200).json(updatedUser);
         } catch (error) {
             res.status(500).json({ message: 'Failed to update user role/department.' });
