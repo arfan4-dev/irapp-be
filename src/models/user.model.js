@@ -45,7 +45,18 @@ const userSchema = new Schema({
     createdAt: {
         type: Date,
         default: Date.now
-    }
+    },
+    mustChangePassword: {
+        type: Boolean,
+        default: false
+    },
+    department: {
+        type: String,
+        enum: ['Kitchen', 'Reception', 'Cleaning Staff', 'Security', 'Other'],
+        default: null,
+    },
+
+
 });
 
 const User = mongoose.model('User', userSchema);

@@ -182,6 +182,7 @@ export const userController = {
                     email: user.email,
                     role: user.role,
                     fullName: user.fullName,
+                    changePassword: user.mustChangePassword,
                     token: accessToken
                 }
             });
@@ -249,14 +250,14 @@ export const userController = {
             res.status(500).json({ success: false, message: 'Server error', error: error.message });
         }
     },
-    verifyPassword : asyncHandler(async (req, res) => {
-        const { password,user } = req.body;
+    verifyPassword: asyncHandler(async (req, res) => {
+        const { password, user } = req.body;
         console.log(user);
-        
+
         const newUser = await User.findById({ _id: user.id }); // use req.user from authMiddleware
         console.log(newUser);
         const isMatch = await bcrypt.compare(password, newUser.password);
-        
+
         if (!isMatch) {
             return res.status(401).json({ success: false, message: "Invalid password" });
         }
@@ -308,5 +309,99 @@ export const userController = {
         } catch (error) {
             res.status(500).json({ success: false, message: 'Server error', error: error.message });
         }
+    },
+
+    changePassword:async(req,res)=>{
+        try {
+            const { oldPassword, newPassword } = req.body;
+            const { id } = req.params; // from token
+            console.log(id);
+
+            const user = await User.findById(id);
+            if (!user) {
+                return res.status(404).json({ success: false, message: 'User not found' });
+            }
+
+            const isMatch = await bcrypt.compare(oldPassword, user.password);
+            if (!isMatch) {
+                return res.status(401).json({ success: false, message: 'Invalid old password' });
+            }
+
+            user.password = await bcrypt.hash(newPassword, SALT_ROUNDS);
+            user.mustChangePassword = false; // Set to false after password change
+            await user.save();
+
+            res.status(200).json({ success: true, message: 'Password changed successfully' });
+        } catch (error) {
+            res.status(500).json({ success: false, message: 'Server error', error: error.message });
+        }
+    },
+    updateUserRoleAndDepartment :async (req, res) => {
+        const { userId } = req.params;
+        const { role, department } = req.body;
+
+        try {
+            const updatedUser = await User.findByIdAndUpdate(
+                userId,
+                { role, department },
+                { new: true }
+            );
+            res.status(200).json(updatedUser);
+        } catch (error) {
+            res.status(500).json({ message: 'Failed to update user role/department.' });
+        }
+    },
+  fetchAllUsers:async (req, res) => {
+        try {
+            const users = await User.find({}, '-password -refreshToken'); // exclude sensitive info
+            res.status(200).json(users);
+        } catch (error) {
+            res.status(500).json({ message: 'Failed to fetch users', error });
+        }
+    },
+    // controllers/userController.js
+     updateUserRoleAndDepartment : async (req, res) => {
+        const { userId } = req.params;
+        const { role, department } = req.body;
+
+        try {
+            const updatedUser = await User.findByIdAndUpdate(
+                userId,
+                { role, department },
+                { new: true }
+            );
+            res.status(200).json(updatedUser);
+        } catch (error) {
+            res.status(500).json({ message: 'Failed to update user role/department.' });
+        }
+    }
+
+};
+
+
+export const createDefaultAdmin = async () => {
+    try {
+        const existingAdmin = await User.findOne({ role: 'admin' });
+
+        if (true) {
+            const hashedPassword = await bcrypt.hash('admin', 10);
+
+            const adminUser = new User({
+                username: 'admin',
+                email: 'admin@example.com', // required, use a dummy or internal email
+                password: hashedPassword,
+                role: 'admin',
+                isVerified: true, // bypass verification
+                mustChangePassword: true
+            });
+
+            await adminUser.save();
+            console.log("✅ Default admin created.");
+        } else {
+            console.log("ℹ️ Admin user already exists.");
+        }
+    } catch (error) {
+        console.error("❌ Failed to create default admin:", error);
     }
 };
+

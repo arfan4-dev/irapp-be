@@ -1,6 +1,6 @@
 import express from 'express';
 import upload from '../middlewares/multer.middleware.js';
-import { userController } from '../controllers/user.controller.js';
+import { createDefaultAdmin, userController } from '../controllers/user.controller.js';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
 import {
     createCategory,
@@ -16,6 +16,7 @@ import {
     getAllOrders,
     updateOrderStatus,
 } from '../controllers/order.controller.js';
+import { verifyAdmin } from '../middlewares/admin.middleware.js';
 const router = express.Router();
 
 // Auth routes
@@ -26,6 +27,10 @@ router.post('/logout', userController.logoutUser);
 router.get('/refresh-token', userController.refreshToken);
 router.put('/update-user/:id', upload.single('image'), userController.updateUser);
 router.post('/verify-password', authMiddleware, userController.verifyPassword);
+router.post('/change-password/:id', userController.changePassword)
+router.put('/users/:userId/update-role', userController.updateUserRoleAndDepartment);
+router.get('/users/all', userController.fetchAllUsers); // Only accessible to admins
+router.put('/users/:userId/update-role', userController.updateUserRoleAndDepartment);
 
 // ✅ Protected route
 router.get('/:id', authMiddleware, userController.getUser);
@@ -38,7 +43,6 @@ router.put('/categories/:id', updateCategoryLabel);            // PUT /api/categ
 router.post('/categories/:id/items', addItemToCategory);       // POST /api/category/:id/items
 router.delete('/categories/:id/items', removeItemFromCategory);// DELETE /api/category/:id/items
 router.put('/categories/:id/items', updateItemInCategory);
-
 // Order routes
 router.post('/order', createOrder);
 router.get('/order/all', getAllOrders);
