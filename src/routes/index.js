@@ -16,7 +16,6 @@ import {
     getAllOrders,
     updateOrderStatus,
 } from '../controllers/order.controller.js';
-import { verifyAdmin } from '../middlewares/admin.middleware.js';
 const router = express.Router();
 
 // Auth routes
@@ -31,7 +30,7 @@ router.post('/change-password/:id', userController.changePassword)
 router.put('/users/:userId/update-role', userController.updateUserRoleAndDepartment);
 router.get('/users/all', userController.fetchAllUsers); // Only accessible to admins
 router.put('/users/:userId/update-role-department', userController.updateUserRoleAndDepartment);
-
+router.post('/auth/admin', userController.adminLogin); // Admin login route
 // ✅ Protected route
 router.get('/:id', authMiddleware, userController.getUser);
 

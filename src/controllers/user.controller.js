@@ -199,19 +199,33 @@ export const userController = {
                 return res.status(400).json({ success: false, message: 'Email/Username and password are required' });
             }
 
-            // 🔍 Find user by email OR username (case-insensitive)
+            // 🔍 Find by email or username
+            // const user = await User.findOne({
+            //     $or: [
+            //         { email: email.toLowerCase() },
+            //         { username: { $regex: new RegExp(`^${email}$`, 'i') } }
+            //     ]
+            // });
+
             const user = await User.findOne({
-                $or: [
-                    { email: email.toLowerCase() },
-                    { username: { $regex: new RegExp(`^${email}$`, 'i') } }
-                ]
+               
+                     email: email.toLowerCase() 
+                    
             });
 
             if (!user) {
                 return res.status(404).json({ success: false, message: 'User not found' });
             }
 
-            // ✅ Check if verified
+            // ❌ Prevent admins from logging in via this route
+            if (user.role === 'admin') {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Admins must log in from the admin login page.'
+                });
+            }
+
+            // ✅ Email verification check
             if (!user.isVerified) {
                 const verificationToken = jwt.sign(
                     { email: user.email },
@@ -227,9 +241,9 @@ export const userController = {
                     from: process.env.EMAIL,
                     to: user.email,
                     subject: 'Verify Your Email to Login',
-                    html: `<p>You need to verify your email to login. Click the link below:</p>
+                    html: `<p>Please verify your email before logging in:</p>
                <a href="${verificationLink}">Verify Email</a>
-               <p>This link will expire in 24 hours.</p>`
+               <p>This link expires in 24 hours.</p>`
                 };
 
                 await transporter.sendMail(mailOptions);
@@ -246,17 +260,13 @@ export const userController = {
                 return res.status(401).json({ success: false, message: 'Invalid password' });
             }
 
-            // 🔐 Create Tokens
-            const accessToken = jwt.sign(
-                { id: user._id, email: user.email },
-                JWT_ACCESS_TOKEN_SECRET_KEY,
-                { expiresIn: '15m' }
-            );
-            const refreshToken = jwt.sign(
-                { id: user._id, email: user.email },
-                JWT_ACCESS_TOKEN_SECRET_KEY,
-                { expiresIn: '7d' }
-            );
+            // 🔐 Create tokens
+            const accessToken = jwt.sign({ id: user._id, email: user.email }, JWT_ACCESS_TOKEN_SECRET_KEY, {
+                expiresIn: '15m'
+            });
+            const refreshToken = jwt.sign({ id: user._id, email: user.email }, JWT_ACCESS_TOKEN_SECRET_KEY, {
+                expiresIn: '7d'
+            });
 
             await new Token({ userId: user._id, token: refreshToken }).save();
 
@@ -283,11 +293,11 @@ export const userController = {
                     token: accessToken
                 }
             });
-
         } catch (error) {
             res.status(500).json({ success: false, message: 'Server error', error: error.message });
         }
     }
+
 
 ,
     refreshToken: async (req, res) => {
@@ -367,7 +377,7 @@ export const userController = {
     updateUser: async (req, res) => {
         try {
             const { username, password } = req.body;
-            const { id } = req.params; // from token
+            const { id } = req.params;
             console.log("username, password:", username, password)
             const updateData = { username };
             if (password) {
@@ -438,7 +448,6 @@ export const userController = {
     updateUserRoleAndDepartment :async (req, res) => {
         const { userId } = req.params;
         const { role, department } = req.body;
-console.log(userId,role,department);
 
         try {
             const updatedUser = await User.findByIdAndUpdate(
@@ -474,7 +483,67 @@ console.log(userId,role,department);
         } catch (error) {
             res.status(500).json({ message: 'Failed to update user role/department.' });
         }
+    },
+    adminLogin: async(req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        // Match either by email or username
+        const user = await User.findOne({
+            $or: [
+                { email: email.toLowerCase() },
+                { username: email } // `email` input can also be a username
+            ]
+        });
+
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        if (user.role !== 'admin') {
+            return res.status(403).json({ message: 'Access Denied. Admins only.' });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
+
+
+        // 🔐 Create tokens
+        const accessToken = jwt.sign({ id: user._id, email: user.email }, JWT_ACCESS_TOKEN_SECRET_KEY, {
+            expiresIn: '15m'
+        });
+        const refreshToken = jwt.sign({ id: user._id, email: user.email }, JWT_ACCESS_TOKEN_SECRET_KEY, {
+            expiresIn: '7d'
+        });
+
+        await new Token({ userId: user._id, token: refreshToken }).save();
+
+        res.cookie('accessToken', accessToken, {
+            httpOnly: false,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 15 * 60 * 1000
+        });
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: false,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+
+        return res.status(200).json({
+            success: true,
+            data: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                role: user.role,
+                fullName: user.fullName,
+                changePassword: user.mustChangePassword,
+                token: accessToken
+            }
+        });
+
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
+}
 
 };
 
