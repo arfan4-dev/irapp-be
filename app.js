@@ -13,18 +13,27 @@ import logger from './src/utils/logger.utils.js';
 
 const app = express()
 // This will solve CORS Policy Error
+// app.use(
+//   cors({
+//     origin: function (origin, callback) {
+//       // Allow requests with no origin, such as mobile apps or curl requests
+//       if (!origin || CORS_ALLOWED_ORIGINS.includes(origin)) {
+//         callback(null, true);
+//       } else {
+//         callback(new Error('Not allowed by CORS'));
+//       }
+//     },
+//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+//     credentials: true, // Allow cookies with cross-origin requests
+//   })
+// );
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin, such as mobile apps or curl requests
-      if (!origin || CORS_ALLOWED_ORIGINS.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
+    origin: (origin, callback) => {
+      callback(null, origin); // ✅ Allow all origins dynamically
     },
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    credentials: true, // Allow cookies with cross-origin requests
   })
 );
 
@@ -32,11 +41,11 @@ app.use(
 
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ extended: true, limit: '50mb' }))
-app.use(express.static('public'))
+// app.use(express.static('public'))
 // Passport Middleware
 app.use(passport.initialize());
 // Cookie Parser
-app.use(express.static(path.join(process.cwd(), "public")));
+// app.use(express.static(path.join(process.cwd(), "public")));
 
 app.use(cookieParser())
 app.use(logger); // Custom morgan logger
