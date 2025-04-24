@@ -29,11 +29,9 @@ const app = express()
 // );
 app.use(
   cors({
-    origin: (origin, callback) => {
-      callback(null, origin); // ✅ Allow all origins dynamically
-    },
-    credentials: true,
+    origin: '*', // ✅ Allow all origins
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    credentials: true // ⚠️ Note: `credentials: true` is not compatible with `origin: '*'`
   })
 );
 
