@@ -22,8 +22,12 @@ export const userController = {
     createUser: async (req, res) => {
         try {
 
-            const imagePath = req.file ? `/public/temp/${req.file.filename}` : null;
+            // const imagePath = req.file ? `/public/temp/${req.file.filename}` : null;
+            const profileImgLocalPath = req.file?.path;
 
+            if (!profileImgLocalPath) {
+                throw new ApiError(400, "profileImg file is required")
+            }
             const { error } = validateUser(req.body);
             if (error) {
                 return res.status(400).json({ success: false, message: error.details[0].message });
@@ -48,7 +52,7 @@ export const userController = {
                 role: req.body.role,
                 password: hashedPassword,
                 verificationToken,
-                image: imagePath, // ✅ add this field in your User model
+                image: profileImgLocalPath, // ✅ add this field in your User model
             });
 
 
@@ -190,7 +194,7 @@ export const userController = {
     //         res.status(500).json({ success: false, message: 'Server error', error: error.message });
     //     }
     // },
-    
+
     loginUser: async (req, res) => {
         try {
             const { email, password } = req.body;
@@ -208,9 +212,9 @@ export const userController = {
             // });
 
             const user = await User.findOne({
-               
-                     email: email.toLowerCase() 
-                    
+
+                email: email.toLowerCase()
+
             });
 
             if (!user) {
@@ -299,7 +303,7 @@ export const userController = {
     }
 
 
-,
+    ,
     refreshToken: async (req, res) => {
         const refreshToken = req.cookies.refreshToken;
 
@@ -420,7 +424,7 @@ export const userController = {
         }
     },
 
-    changePassword:async(req,res)=>{
+    changePassword: async (req, res) => {
         try {
             const { oldPassword, newPassword } = req.body;
             const { id } = req.params; // from token
@@ -445,7 +449,7 @@ export const userController = {
             res.status(500).json({ success: false, message: 'Server error', error: error.message });
         }
     },
-    updateUserRoleAndDepartment :async (req, res) => {
+    updateUserRoleAndDepartment: async (req, res) => {
         const { userId } = req.params;
         const { role, department } = req.body;
 
@@ -460,7 +464,7 @@ export const userController = {
             res.status(500).json({ message: 'Failed to update user role/department.' });
         }
     },
-  fetchAllUsers:async (req, res) => {
+    fetchAllUsers: async (req, res) => {
         try {
             const users = await User.find({}, '-password -refreshToken'); // exclude sensitive info
             res.status(200).json(users);
@@ -469,7 +473,7 @@ export const userController = {
         }
     },
     // controllers/userController.js
-     updateUserRoleAndDepartment : async (req, res) => {
+    updateUserRoleAndDepartment: async (req, res) => {
         const { userId } = req.params;
         const { role, department } = req.body;
 
@@ -484,66 +488,66 @@ export const userController = {
             res.status(500).json({ message: 'Failed to update user role/department.' });
         }
     },
-    adminLogin: async(req, res) => {
-    const { email, password } = req.body;
+    adminLogin: async (req, res) => {
+        const { email, password } = req.body;
 
-    try {
-        // Match either by email or username
-        const user = await User.findOne({
-            $or: [
-                { email: email.toLowerCase() },
-                { username: email } // `email` input can also be a username
-            ]
-        });
+        try {
+            // Match either by email or username
+            const user = await User.findOne({
+                $or: [
+                    { email: email.toLowerCase() },
+                    { username: email } // `email` input can also be a username
+                ]
+            });
 
-        if (!user) return res.status(404).json({ message: 'User not found' });
+            if (!user) return res.status(404).json({ message: 'User not found' });
 
-        if (user.role !== 'admin') {
-            return res.status(403).json({ message: 'Access Denied. Admins only.' });
-        }
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
-
-
-        // 🔐 Create tokens
-        const accessToken = jwt.sign({ id: user._id, email: user.email }, JWT_ACCESS_TOKEN_SECRET_KEY, {
-            expiresIn: '15m'
-        });
-        const refreshToken = jwt.sign({ id: user._id, email: user.email }, JWT_ACCESS_TOKEN_SECRET_KEY, {
-            expiresIn: '7d'
-        });
-
-        await new Token({ userId: user._id, token: refreshToken }).save();
-
-        res.cookie('accessToken', accessToken, {
-            httpOnly: false,
-            secure: process.env.NODE_ENV === 'production',
-            maxAge: 15 * 60 * 1000
-        });
-        res.cookie('refreshToken', refreshToken, {
-            httpOnly: false,
-            secure: process.env.NODE_ENV === 'production',
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        });
-
-        return res.status(200).json({
-            success: true,
-            data: {
-                id: user._id,
-                username: user.username,
-                email: user.email,
-                role: user.role,
-                fullName: user.fullName,
-                changePassword: user.mustChangePassword,
-                token: accessToken
+            if (user.role !== 'admin') {
+                return res.status(403).json({ message: 'Access Denied. Admins only.' });
             }
-        });
 
-    } catch (err) {
-        res.status(500).json({ message: 'Server error', error: err.message });
+            const isMatch = await bcrypt.compare(password, user.password);
+            if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
+
+
+            // 🔐 Create tokens
+            const accessToken = jwt.sign({ id: user._id, email: user.email }, JWT_ACCESS_TOKEN_SECRET_KEY, {
+                expiresIn: '15m'
+            });
+            const refreshToken = jwt.sign({ id: user._id, email: user.email }, JWT_ACCESS_TOKEN_SECRET_KEY, {
+                expiresIn: '7d'
+            });
+
+            await new Token({ userId: user._id, token: refreshToken }).save();
+
+            res.cookie('accessToken', accessToken, {
+                httpOnly: false,
+                secure: process.env.NODE_ENV === 'production',
+                maxAge: 15 * 60 * 1000
+            });
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: false,
+                secure: process.env.NODE_ENV === 'production',
+                maxAge: 7 * 24 * 60 * 60 * 1000
+            });
+
+            return res.status(200).json({
+                success: true,
+                data: {
+                    id: user._id,
+                    username: user.username,
+                    email: user.email,
+                    role: user.role,
+                    fullName: user.fullName,
+                    changePassword: user.mustChangePassword,
+                    token: accessToken
+                }
+            });
+
+        } catch (err) {
+            res.status(500).json({ message: 'Server error', error: err.message });
+        }
     }
-}
 
 };
 
