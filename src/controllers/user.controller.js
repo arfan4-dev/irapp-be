@@ -382,17 +382,19 @@ export const userController = {
         try {
             const { username, password } = req.body;
             const { id } = req.params;
-            console.log("username, password:", username, password)
+          
             const updateData = { username };
             if (password) {
                 updateData.password = await bcrypt.hash(password, SALT_ROUNDS);
             }
-
+            
+           
             if (req.file) {
                 updateData.image = `public/temp/${req.file.filename}`;
+                updateData.image = req.file?.path;
             }
 
-            console.log(updateData)
+      
 
             const updatedUser = await User.findByIdAndUpdate(id, updateData, { new: true });
             res.status(200).json({ success: true, message: 'User updated', data: updatedUser });

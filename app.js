@@ -13,27 +13,27 @@ import logger from './src/utils/logger.utils.js';
 
 const app = express()
 // This will solve CORS Policy Error
-// app.use(
-//   cors({
-//     origin: function (origin, callback) {
-//       // Allow requests with no origin, such as mobile apps or curl requests
-//       if (!origin || CORS_ALLOWED_ORIGINS.includes(origin)) {
-//         callback(null, true);
-//       } else {
-//         callback(new Error('Not allowed by CORS'));
-//       }
-//     },
-//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-//     credentials: true, // Allow cookies with cross-origin requests
-//   })
-// );
 app.use(
   cors({
-    origin: '*', // ✅ Allow all origins
+    origin: function (origin, callback) {
+      // Allow requests with no origin, such as mobile apps or curl requests
+      if (!origin || CORS_ALLOWED_ORIGINS.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    credentials: true // ⚠️ Note: `credentials: true` is not compatible with `origin: '*'`
+    credentials: true, // Allow cookies with cross-origin requests
   })
 );
+// app.use(
+//   cors({
+//     origin: '*', // ✅ Allow all origins
+//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+//     credentials: true // ⚠️ Note: `credentials: true` is not compatible with `origin: '*'`
+//   })
+// );
 
 // JSON
 
