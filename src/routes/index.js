@@ -16,6 +16,7 @@ import {
     getAllOrders,
     updateOrderStatus,
 } from '../controllers/order.controller.js';
+import { getSiteConfig, updateSiteConfig } from '../controllers/siteConfig.controller.js';
 const router = express.Router();
 
 // Auth routes
@@ -31,6 +32,7 @@ router.put('/users/:userId/update-role', userController.updateUserRoleAndDepartm
 router.get('/users/all', userController.fetchAllUsers); // Only accessible to admins
 router.put('/users/:userId/update-role-department', userController.updateUserRoleAndDepartment);
 router.post('/auth/admin', userController.adminLogin); // Admin login route
+
 // ✅ Protected route
 router.get('/:id', authMiddleware, userController.getUser);
 
@@ -42,8 +44,17 @@ router.put('/categories/:id', updateCategoryLabel);            // PUT /api/categ
 router.post('/categories/:id/items', addItemToCategory);       // POST /api/category/:id/items
 router.delete('/categories/:id/items', removeItemFromCategory);// DELETE /api/category/:id/items
 router.put('/categories/:id/items', updateItemInCategory);
+
 // Order routes
 router.post('/order', createOrder);
 router.get('/order/all', getAllOrders);
 router.put('/order/:id', updateOrderStatus);
+ 
+// Site Configure
+router.get('/site-config', getSiteConfig);
+router.post('/site-config/update', upload.fields([
+    { name: "logo", maxCount: 1 },
+    { name: "favicon", maxCount: 1 },
+]), updateSiteConfig); // Can be PATCH also if you want
+
 export default router;

@@ -17,7 +17,7 @@ const storage = new CloudinaryStorage({
         return {
             folder: 'uploads', // cloud folder name
             resource_type: file.mimetype.startsWith('video') ? 'video' : 'image',
-            allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'mp4', 'mpeg'],
+            allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'mp4', 'mpeg', 'ico'],
             public_id: file.originalname.split('.')[0], // optional
         };
     },
