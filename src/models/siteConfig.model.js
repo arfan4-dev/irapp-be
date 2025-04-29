@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 const siteConfigSchema = new mongoose.Schema({
     siteTitle: { type: String },
     tagline: { type: String },
-    logoUrl: { type: String },    // store cloudinary or local path
+    logoUrl: { type: String }, 
+    brandName: { type: String },  // store cloudinary or local path
     faviconUrl: { type: String },
     tabs: {
         T1: { type: String },

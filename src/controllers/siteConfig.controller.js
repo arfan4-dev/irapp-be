@@ -10,10 +10,9 @@ export const getSiteConfig = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, config, "Site Config fetched successfully"));
 });
 
-// Update or create site config
 export const updateSiteConfig = asyncHandler(async (req, res) => {
     try {
-        const { siteTitle, tagline, tabs } = req.body;
+        const { siteTitle, tagline, tabs, brandName } = req.body;
 
         // ✅ Safe tab parsing
         let parsedTabs;
@@ -34,14 +33,9 @@ export const updateSiteConfig = asyncHandler(async (req, res) => {
         let config = await SiteConfig.findOne();
 
         if (config) {
-            // ✅ Dynamically update only if non-empty
-            if (siteTitle && siteTitle.trim() !== "") {
-                config.siteTitle = siteTitle.trim();
-            }
-
-            if (tagline && tagline.trim() !== "") {
-                config.tagline = tagline.trim();
-            }
+            if (siteTitle?.trim()) config.siteTitle = siteTitle.trim();
+            if (tagline?.trim()) config.tagline = tagline.trim();
+            if (brandName?.trim()) config.brandName = brandName.trim();
 
             if (
                 parsedTabs &&
@@ -60,10 +54,10 @@ export const updateSiteConfig = asyncHandler(async (req, res) => {
 
             await config.save();
         } else {
-            // ✅ Create only with provided values
             config = await SiteConfig.create({
                 siteTitle: siteTitle?.trim() || "",
                 tagline: tagline?.trim() || "",
+                brandName: brandName?.trim() || "",
                 tabs: parsedTabs || {},
                 logoUrl,
                 faviconUrl,
