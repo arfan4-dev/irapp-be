@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import Token from '../models/token.model.js';
 import nodemailer from 'nodemailer';
 import { JWT_ACCESS_TOKEN_SECRET_KEY, CLIENT_URL } from '../config/env.config.js';
-import { asyncHandler } from '../utils/api.utils.js';
+import { ApiError, ApiResponse, asyncHandler } from '../utils/api.utils.js';
 
 const SALT_ROUNDS = 10;
 
@@ -84,6 +84,40 @@ export const userController = {
             res.status(500).json({ success: false, message: 'Server error', error: error.message });
         }
     },
+     createUserByAdmin : asyncHandler(async (req, res) => {
+        const { username, email, password, role, department } = req.body;
+         console.log(username, email, password, role, department);
+
+        if (!username || !email || !password || !role) {
+            throw new ApiError(400, "Username, email, password and role are required.");
+        }
+
+        const existing = await User.findOne({ email });
+        if (existing) {
+            throw new ApiError(400, "Email already in use.");
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const image = req.file?.path || null;
+         if (!image) {
+             throw new ApiError(400, "profileImg file is required")
+         }
+        const user = await User.create({
+            username,
+            email,
+            password: hashedPassword,
+            role,
+            department: role === "staff" ? department : null,
+            image,
+            refreshToken:null,
+            isVerified: true, // Optional: You can skip verification for admin-created users
+            verificationToken:null,
+            mustChangePassword:false
+        });
+
+        res.status(201).json(new ApiResponse(201, user, "User created successfully"));
+    }),
 
     verifyEmail: async (req, res) => {
         try {

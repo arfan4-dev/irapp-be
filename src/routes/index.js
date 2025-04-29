@@ -33,6 +33,8 @@ router.get('/users/all', userController.fetchAllUsers); // Only accessible to ad
 router.put('/users/:userId/update-role-department', userController.updateUserRoleAndDepartment);
 router.post('/auth/admin', userController.adminLogin); // Admin login route
 
+router.post("/admin/create-user", upload.single("image"), userController.createUserByAdmin);
+
 // ✅ Protected route
 router.get('/:id', authMiddleware, userController.getUser);
 

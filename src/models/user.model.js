@@ -28,7 +28,7 @@ const userSchema = new Schema({
     role: {
         type: String,
         default: 'user',
-        enum: ['admin', 'user']
+        enum: ['admin', 'user','staff']
     },
     refreshToken: {
         type: String,
@@ -52,7 +52,21 @@ const userSchema = new Schema({
     },
     department: {
         type: String,
-        enum: ['Kitchen', 'Reception', 'Cleaning Staff', 'Security', 'Other'],
+        enum: ["Reception",
+            "Kitchen",
+            "Housekeeping",
+            "Maintenance",
+            "Security",
+            "IT Support",
+            "Accounts / Finance",
+            "HR (Human Resources)",
+            "Front Desk",
+            "Customer Service",
+            "Logistics",
+            "Cleaning Crew",
+            "Operations",
+            "Managerial Staff",
+            "Laundry"],
         default: null,
     },
 
