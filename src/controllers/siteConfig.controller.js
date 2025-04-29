@@ -15,7 +15,7 @@ export const updateSiteConfig = asyncHandler(async (req, res) => {
     try {
         const { siteTitle, tagline, tabs } = req.body;
 
-        // Safe tab parsing
+        // ✅ Safe tab parsing
         let parsedTabs;
         if (tabs) {
             try {
@@ -34,19 +34,36 @@ export const updateSiteConfig = asyncHandler(async (req, res) => {
         let config = await SiteConfig.findOne();
 
         if (config) {
-            // 🔥 Dynamically update only the fields provided
-            if (siteTitle !== undefined) config.siteTitle = siteTitle;
-            if (tagline !== undefined) config.tagline = tagline;
-            if (parsedTabs !== undefined) config.tabs = parsedTabs;
+            // ✅ Dynamically update only if non-empty
+            if (siteTitle && siteTitle.trim() !== "") {
+                config.siteTitle = siteTitle.trim();
+            }
+
+            if (tagline && tagline.trim() !== "") {
+                config.tagline = tagline.trim();
+            }
+
+            if (
+                parsedTabs &&
+                Object.keys(parsedTabs).some(key => parsedTabs[key]?.trim?.() !== "")
+            ) {
+                config.tabs = {
+                    ...config.tabs,
+                    ...Object.fromEntries(
+                        Object.entries(parsedTabs).filter(([_, val]) => val?.trim?.() !== "")
+                    ),
+                };
+            }
+
             if (logoUrl) config.logoUrl = logoUrl;
             if (faviconUrl) config.faviconUrl = faviconUrl;
 
             await config.save();
         } else {
-            // Create new config if none exists
+            // ✅ Create only with provided values
             config = await SiteConfig.create({
-                siteTitle,
-                tagline,
+                siteTitle: siteTitle?.trim() || "",
+                tagline: tagline?.trim() || "",
                 tabs: parsedTabs || {},
                 logoUrl,
                 faviconUrl,

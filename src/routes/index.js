@@ -51,7 +51,7 @@ router.get('/order/all', getAllOrders);
 router.put('/order/:id', updateOrderStatus);
  
 // Site Configure
-router.get('/site-config', getSiteConfig);
+router.get('/site-config/get', getSiteConfig);
 router.post('/site-config/update', upload.fields([
     { name: "logo", maxCount: 1 },
     { name: "favicon", maxCount: 1 },
