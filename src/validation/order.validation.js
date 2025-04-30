@@ -6,6 +6,7 @@ export const validateOrder = (data) => {
         type: Joi.string().min(2).required(),
         person: Joi.string().min(2).required(),
         department: Joi.string().min(2).required(),
+        location: Joi.string().min(2).required(),
         status: Joi.string().valid('Pending', 'In Progress', 'Answered').required(),
         items: Joi.array()
             .items(
