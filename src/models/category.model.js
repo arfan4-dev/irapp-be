@@ -7,6 +7,9 @@ const itemSchema = new mongoose.Schema({
 
 const categorySchema = new mongoose.Schema({
     label: { type: String, required: true, },
+    department:{
+        type: String, 
+    },
     items: [itemSchema],
 
 }, { timestamps: true }); // Optional: adds createdAt/updatedAt

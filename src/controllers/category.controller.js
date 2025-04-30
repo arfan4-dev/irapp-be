@@ -16,6 +16,7 @@ export const createCategory = async (req, res) => {
 
         const category = new Category({
             label: req.body.label,
+            department:req.body.department
         });
 
         await category.save();

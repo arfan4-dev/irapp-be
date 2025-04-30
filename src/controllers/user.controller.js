@@ -79,18 +79,19 @@ export const userController = {
                     username: savedUser.username,
                     email: savedUser.email,
                     fullName: savedUser.fullName,
-                    location:savedUser.location
+                    location: savedUser.location
                 }
             });
         } catch (error) {
             res.status(500).json({ success: false, message: 'Server error', error: error.message });
         }
     },
-     createUserByAdmin : asyncHandler(async (req, res) => {
-         const { username, email, password, role, department, location } = req.body;
-       
+    createUserByAdmin: asyncHandler(async (req, res) => {
+        const { username, email, password, role, department, location } = req.body;
 
-         if (!username || !email || !password || !role || !location) {
+        console.log(req.body);
+
+        if (!username || !email || !password || !role || !location || !department) {
             throw new ApiError(400, "Username, email, password and role are required.");
         }
 
@@ -102,21 +103,23 @@ export const userController = {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const image = req.file?.path || null;
-         if (!image) {
-             throw new ApiError(400, "profileImg file is required")
-         }
+
+
+        if (!image) {
+            throw new ApiError(400, "profileImg file is required")
+        }
         const user = await User.create({
             username,
             email,
             password: hashedPassword,
             role,
-            department: role === "staff" ? department : null,
+            department: role === "admin" ? null : department,
             image,
-            refreshToken:null,
+            refreshToken: null,
             isVerified: true, // Optional: You can skip verification for admin-created users
-            verificationToken:null,
+            verificationToken: null,
             location,
-            mustChangePassword:false
+            mustChangePassword: false
         });
 
         res.status(201).json(new ApiResponse(201, user, "User created successfully"));
@@ -323,7 +326,7 @@ export const userController = {
             });
             console.log("user:", user);
 
-   
+
             return res.status(200).json({
                 success: true,
                 data: {
@@ -391,7 +394,7 @@ export const userController = {
                 data: {
                     id: user._id,
                     username: user.username,
-                    location:user.location,
+                    location: user.location,
                     department: user.department,
                     email: user.email,
                     fullName: user.fullName,
@@ -424,19 +427,19 @@ export const userController = {
         try {
             const { username, password } = req.body;
             const { id } = req.params;
-          
+
             const updateData = { username };
             if (password) {
                 updateData.password = await bcrypt.hash(password, SALT_ROUNDS);
             }
-            
-           
+
+
             if (req.file) {
                 // updateData.image = `public/temp/${req.file.filename}`;
                 updateData.image = req.file?.path;
             }
 
-      
+
 
             const updatedUser = await User.findByIdAndUpdate(id, updateData, { new: true });
             res.status(200).json({ success: true, message: 'User updated', data: updatedUser });

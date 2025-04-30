@@ -1,12 +1,12 @@
 // controllers/orderController.js
 
-import  Order  from '../models/order.model.js';
+import Order from '../models/order.model.js';
 import { validateOrder } from '../validation/order.validation.js';
 import { ApiError, ApiResponse, asyncHandler } from '../utils/api.utils.js';
 
 export const createOrder = asyncHandler(async (req, res) => {
     const { error } = validateOrder(req.body);
-        console.log(req.body)
+    console.log(req.body)
     if (error) {
         throw new ApiError(400, error.details[0].message);
     }
