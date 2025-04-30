@@ -50,6 +50,10 @@ const userSchema = new Schema({
         type: Boolean,
         default: false
     },
+    location:{
+        type: String,
+        default:null
+    },
     department: {
         type: String,
         enum: ["Reception",

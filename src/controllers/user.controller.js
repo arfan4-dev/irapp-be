@@ -50,6 +50,7 @@ export const userController = {
                 username: req.body.username,
                 email: req.body.email,
                 role: req.body.role,
+                location: req.body.location,
                 password: hashedPassword,
                 verificationToken,
                 image: profileImgLocalPath, // ✅ add this field in your User model
@@ -77,7 +78,8 @@ export const userController = {
                     id: savedUser._id,
                     username: savedUser.username,
                     email: savedUser.email,
-                    fullName: savedUser.fullName
+                    fullName: savedUser.fullName,
+                    location:savedUser.location
                 }
             });
         } catch (error) {
@@ -85,10 +87,10 @@ export const userController = {
         }
     },
      createUserByAdmin : asyncHandler(async (req, res) => {
-        const { username, email, password, role, department } = req.body;
-         console.log(username, email, password, role, department);
+         const { username, email, password, role, department, location } = req.body;
+       
 
-        if (!username || !email || !password || !role) {
+         if (!username || !email || !password || !role || !location) {
             throw new ApiError(400, "Username, email, password and role are required.");
         }
 
@@ -113,6 +115,7 @@ export const userController = {
             refreshToken:null,
             isVerified: true, // Optional: You can skip verification for admin-created users
             verificationToken:null,
+            location,
             mustChangePassword:false
         });
 
@@ -318,13 +321,16 @@ export const userController = {
                 secure: process.env.NODE_ENV === 'production',
                 maxAge: 7 * 24 * 60 * 60 * 1000
             });
+            console.log("user:", user);
 
-            return res.status(200).json({
+   
+return res.status(200).json({
                 success: true,
                 data: {
                     id: user._id,
                     username: user.username,
                     email: user.email,
+                    location: user.location,
                     role: user.role,
                     fullName: user.fullName,
                     changePassword: user.mustChangePassword,

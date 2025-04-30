@@ -20,6 +20,9 @@ const userValidationSchema = Joi.object({
     fullName: Joi.string()
         .max(50)
         .trim(),
+    location: Joi.string()
+        .max(20)
+        .trim(),
 
     role: Joi.string()
         .valid('admin', 'user')
