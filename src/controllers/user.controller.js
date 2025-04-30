@@ -324,7 +324,7 @@ export const userController = {
             console.log("user:", user);
 
    
-return res.status(200).json({
+            return res.status(200).json({
                 success: true,
                 data: {
                     id: user._id,
@@ -391,6 +391,8 @@ return res.status(200).json({
                 data: {
                     id: user._id,
                     username: user.username,
+                    location:user.location,
+                    department: user.department,
                     email: user.email,
                     fullName: user.fullName,
                     role: user.role,
@@ -430,7 +432,7 @@ return res.status(200).json({
             
            
             if (req.file) {
-                updateData.image = `public/temp/${req.file.filename}`;
+                // updateData.image = `public/temp/${req.file.filename}`;
                 updateData.image = req.file?.path;
             }
 

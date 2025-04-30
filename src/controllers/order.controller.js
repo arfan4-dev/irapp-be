@@ -6,6 +6,7 @@ import { ApiError, ApiResponse, asyncHandler } from '../utils/api.utils.js';
 
 export const createOrder = asyncHandler(async (req, res) => {
     const { error } = validateOrder(req.body);
+        
     if (error) {
         throw new ApiError(400, error.details[0].message);
     }
