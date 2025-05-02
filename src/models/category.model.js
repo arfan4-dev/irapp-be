@@ -2,7 +2,9 @@ import mongoose from 'mongoose';
 
 const itemSchema = new mongoose.Schema({
     name: { type: String, required: true },
-    allowMultiple: { type: Boolean, default: false }
+
+    allowMultiple: { type: Boolean, default: false },
+    enabled: { type: Boolean, default: true }, // ✅ Add this
 });
 
 const categorySchema = new mongoose.Schema({
@@ -10,6 +12,8 @@ const categorySchema = new mongoose.Schema({
     department:{
         type: String, 
     },
+    enabled: { type: Boolean, default: true },
+
     items: [itemSchema],
 
 }, { timestamps: true }); // Optional: adds createdAt/updatedAt

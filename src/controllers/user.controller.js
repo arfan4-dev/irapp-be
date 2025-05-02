@@ -6,6 +6,7 @@ import Token from '../models/token.model.js';
 import nodemailer from 'nodemailer';
 import { JWT_ACCESS_TOKEN_SECRET_KEY, CLIENT_URL } from '../config/env.config.js';
 import { ApiError, ApiResponse, asyncHandler } from '../utils/api.utils.js';
+import crypto from 'crypto';
 
 const SALT_ROUNDS = 10;
 
@@ -594,7 +595,60 @@ export const userController = {
         } catch (err) {
             res.status(500).json({ message: 'Server error', error: err.message });
         }
-    }
+    },
+    forgotPassword : asyncHandler(async (req, res) => {
+        const { email } = req.body;
+        if (!email) throw new ApiError(400, "Email is required");
+
+        const user = await User.findOne({ email });
+        if (!user) throw new ApiError(404, "No user found with this email");
+
+        const token = crypto.randomBytes(32).toString("hex");
+        const resetToken = jwt.sign({ id: user._id }, JWT_ACCESS_TOKEN_SECRET_KEY, { expiresIn: "15m" });
+
+        const resetLink = `${CLIENT_URL}/reset-password/${resetToken}`;
+
+        await transporter.sendMail({
+            from: process.env.EMAIL,
+            to: email,
+            subject: "Password Reset Request",
+            html: `
+      <p>You requested to reset your password.</p>
+      <p><a href="${resetLink}">Click here to reset password</a></p>
+      <p>This link will expire in 15 minutes.</p>
+    `,
+        });
+
+        user.resetToken = resetToken;
+        user.resetTokenExpiry = Date.now() + 15 * 60 * 1000;
+        await user.save();
+
+        res.status(200).json(new ApiResponse(200, null, "Reset link sent to email."));
+    }),
+
+    resetPassword: asyncHandler(async (req, res) => {
+        const { token } = req.params;
+        const { newPassword } = req.body;
+
+        if (!newPassword) throw new ApiError(400, "New password is required");
+
+        const decoded = jwt.verify(token, JWT_ACCESS_TOKEN_SECRET_KEY);
+
+        const user = await User.findOne({
+            _id: decoded.id,
+            resetToken: token,
+            resetTokenExpiry: { $gt: Date.now() },
+        });
+
+        if (!user) throw new ApiError(400, "Invalid or expired token");
+
+        user.password = await bcrypt.hash(newPassword, SALT_ROUNDS);
+        user.resetToken = undefined;
+        user.resetTokenExpiry = undefined;
+        await user.save();
+
+        res.status(200).json(new ApiResponse(200, null, "Password reset successfully"));
+    })
 
 };
 
