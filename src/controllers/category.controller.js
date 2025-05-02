@@ -61,10 +61,13 @@ export const deleteCategory = async (req, res) => {
 // ✏️ Update category label
 export const updateCategoryLabel = async (req, res) => {
     try {
-        const { newLabel } = req.body;
+        const { newLabel,newDepartment } = req.body;
+        console.log(newLabel, newDepartment)
         const updated = await Category.findByIdAndUpdate(
             req.params.id,
-            { label: newLabel },
+            { label: newLabel,
+                department: newDepartment,
+             },
             { new: true }
         );
         res.json({ success: true, data: updated });
