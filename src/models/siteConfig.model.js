@@ -10,7 +10,8 @@ const siteConfigSchema = new mongoose.Schema({
         T1: { type: String },
         T2: { type: String },
         T3: { type: String },
-        T4: { type: String }
+        T4: { type: String },
+        T5: { type: String }
     }
 }, { timestamps: true });
 
