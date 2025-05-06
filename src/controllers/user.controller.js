@@ -18,7 +18,6 @@ const transporter = nodemailer.createTransport({
         pass: process.env.PASSWORD
     }
 });
-
 export const userController = {
     createUser: async (req, res) => {
         try {
@@ -612,7 +611,7 @@ export const userController = {
         const token = crypto.randomBytes(32).toString("hex");
         const resetToken = jwt.sign({ id: user._id }, JWT_ACCESS_TOKEN_SECRET_KEY, { expiresIn: "15m" });
 
-        const resetLink = `${CLIENT_URL}/reset-password/${resetToken}`;
+        const resetLink = `${req.headers.origin}/reset-password/${resetToken}`;
 
         await transporter.sendMail({
             from: process.env.EMAIL,
@@ -634,8 +633,8 @@ export const userController = {
 
     resetPassword: asyncHandler(async (req, res) => {
         const { token } = req.params;
-        const { newPassword } = req.body;
-
+        const { password } = req.body;
+        let newPassword = password;
         if (!newPassword) throw new ApiError(400, "New password is required");
 
         const decoded = jwt.verify(token, JWT_ACCESS_TOKEN_SECRET_KEY);

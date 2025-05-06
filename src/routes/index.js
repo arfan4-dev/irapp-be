@@ -33,6 +33,8 @@ router.put('/users/:userId/update-role', userController.updateUserRoleAndDepartm
 router.get('/users/all', userController.fetchAllUsers); // Only accessible to admins
 router.put('/users/:userId/update-role-department', userController.updateUserRoleAndDepartment);
 router.post('/auth/admin', userController.adminLogin); // Admin login route
+router.post('/auth/forgot-password', userController.forgotPassword);
+router.post('/auth/reset-password/:token', userController.resetPassword);
 
 router.post("/admin/create-user", upload.single("image"), userController.createUserByAdmin);
 
@@ -40,12 +42,12 @@ router.post("/admin/create-user", upload.single("image"), userController.createU
 router.get('/:id', authMiddleware, userController.getUser);
 
 // Category routes
-router.post('/categories', createCategory);                   // POST /api/category
-router.get('/categories/all', getAllCategories);                  // GET /api/category
-router.delete('/categories/:id', deleteCategory);              // DELETE /api/category/:id
-router.put('/categories/:id', updateCategoryLabel);            // PUT /api/category/:id
-router.post('/categories/:id/items', addItemToCategory);       // POST /api/category/:id/items
-router.delete('/categories/:id/items', removeItemFromCategory);// DELETE /api/category/:id/items
+router.post('/categories', createCategory);                              // POST /api/category
+router.get('/categories/all', getAllCategories);                        // GET /api/category
+router.delete('/categories/:id', deleteCategory);                       // DELETE /api/category/:id
+router.put('/categories/:id', updateCategoryLabel);                     // PUT /api/category/:id
+router.post('/categories/:id/items', addItemToCategory);                // POST /api/category/:id/items
+router.delete('/categories/:id/items', removeItemFromCategory);         // DELETE /api/category/:id/items
 router.put('/categories/:id/items', updateItemInCategory);
 
 // Order routes
