@@ -120,7 +120,7 @@ export const userController = {
             isVerified: true, // Optional: You can skip verification for admin-created users
             verificationToken: null,
             location,
-            mustChangePassword: false
+            mustChangePassword: true
         });
 
         res.status(201).json(new ApiResponse(201, user, "User created successfully"));
@@ -536,6 +536,7 @@ export const userController = {
             res.status(500).json({ message: 'Failed to update user role/department.' });
         }
     },
+
     adminLogin: async (req, res) => {
         const { email, password } = req.body;
 
@@ -596,7 +597,8 @@ export const userController = {
             res.status(500).json({ message: 'Server error', error: err.message });
         }
     },
-    forgotPassword : asyncHandler(async (req, res) => {
+
+    forgotPassword: asyncHandler(async (req, res) => {
         const { email } = req.body;
         if (!email) throw new ApiError(400, "Email is required");
 
