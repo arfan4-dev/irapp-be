@@ -87,6 +87,7 @@ export const userController = {
             res.status(500).json({ success: false, message: 'Server error', error: error.message });
         }
     },
+
     createUserByAdmin: asyncHandler(async (req, res) => {
         const { username, email, password, role, department, location } = req.body;
 
@@ -409,6 +410,7 @@ export const userController = {
             res.status(500).json({ success: false, message: 'Server error', error: error.message });
         }
     },
+
     verifyPassword: asyncHandler(async (req, res) => {
         const { password, user } = req.body;
         console.log(user);
@@ -497,6 +499,7 @@ export const userController = {
             res.status(500).json({ success: false, message: 'Server error', error: error.message });
         }
     },
+
     updateUserRoleAndDepartment: async (req, res) => {
         const { userId } = req.params;
         const { role, department } = req.body;
@@ -512,6 +515,7 @@ export const userController = {
             res.status(500).json({ message: 'Failed to update user role/department.' });
         }
     },
+
     fetchAllUsers: async (req, res) => {
         try {
             const users = await User.find({}, '-password -refreshToken'); // exclude sensitive info
@@ -520,7 +524,7 @@ export const userController = {
             res.status(500).json({ message: 'Failed to fetch users', error });
         }
     },
-    // controllers/userController.js
+
     updateUserRoleAndDepartment: async (req, res) => {
         const { userId } = req.params;
         const { role, department } = req.body;
