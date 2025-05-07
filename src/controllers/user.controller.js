@@ -634,7 +634,7 @@ export const userController = {
     resetPassword: asyncHandler(async (req, res) => {
         const { token } = req.params;
         const { password } = req.body;
-        let newPassword=password;
+        let newPassword = password;
         if (!newPassword) throw new ApiError(400, "New password is required");
 
         const decoded = jwt.verify(token, JWT_ACCESS_TOKEN_SECRET_KEY);
