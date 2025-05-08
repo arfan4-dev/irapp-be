@@ -15,6 +15,6 @@ const orderSchema = new mongoose.Schema({
     items: [itemSchema],
     status: { type: String, enum: ['Pending', 'In Progress', 'Answered'], default: 'Pending' },
     timestamp: { type: Date, default: Date.now }
-});
+}); 
 
 export default mongoose.model('Order', orderSchema);

@@ -36,9 +36,12 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
     if (!order) {
         throw new ApiError(404, 'Order not found');
     }
+    console.log("Before update:", order)
 
     order.status = status || order.status;
+    order.timestamp = new Date().toISOString()
     const updated = await order.save();
 
+    console.log("After update:", updated)
     return res.status(200).json(new ApiResponse(200, updated, 'Order status updated'));
 });
