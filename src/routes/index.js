@@ -35,6 +35,8 @@ router.put('/users/:userId/update-role-department', userController.updateUserRol
 router.post('/auth/admin', userController.adminLogin); // Admin login route
 router.post('/auth/forgot-password', userController.forgotPassword);
 router.post('/auth/reset-password/:token', userController.resetPassword);
+router.post("/generate-otp/:userId", userController.generateOtpForUser);
+router.delete("/users/:id", userController.deleteUser);
 
 router.post("/admin/create-user", upload.single("image"), userController.createUserByAdmin);
 

@@ -299,8 +299,21 @@ export const userController = {
                 });
             }
 
-            // ✅ Match password
-            const isPasswordMatch = await bcrypt.compare(password, user.password);
+            // Add extra validation for user.password
+            if (!user.password) {
+                console.error('User password is undefined or not set:', user);
+                return res.status(500).json({ success: false, message: 'User password not set. Please contact support.' });
+            }
+
+            // Match password with better error handling
+            let isPasswordMatch;
+            try {
+                isPasswordMatch = await bcrypt.compare(password, user.password);
+            } catch (bcryptError) {
+                console.error('Bcrypt comparison error:', bcryptError);
+                return res.status(500).json({ success: false, message: 'Error verifying password. Please try again.' });
+            }
+
             if (!isPasswordMatch) {
                 return res.status(401).json({ success: false, message: 'Invalid password' });
             }
@@ -325,7 +338,6 @@ export const userController = {
                 secure: process.env.NODE_ENV === 'production',
                 maxAge: 7 * 24 * 60 * 60 * 1000
             });
-            console.log("user:", user);
 
 
             return res.status(200).json({
@@ -342,7 +354,7 @@ export const userController = {
                 }
             });
         } catch (error) {
-            res.status(500).json({ success: false, message: 'Server error', error: error.message });
+            return res.status(500).json({ success: false, message: 'Invalid Email or Password.' });
         }
     }
 
@@ -378,7 +390,7 @@ export const userController = {
             res.json({ success: true, message: 'Token refreshed' });
         } catch (error) {
 
-            res.status(403).json({ message: 'Invalid refresh token', error: error.message });
+            return res.status(403).json({ message: 'Invalid refresh token', error: error.message });
         }
     },
 
@@ -457,10 +469,6 @@ export const userController = {
             if (!refreshToken) {
                 return res.status(400).json({ success: false, message: 'No refresh token provided' });
             }
-
-
-
-
             await Token.deleteOne({ refreshToken });
 
             // Clear cookies
@@ -653,7 +661,50 @@ export const userController = {
         await user.save();
 
         res.status(200).json(new ApiResponse(200, null, "Password reset successfully"));
-    })
+    }),
+    generateOtpForUser : async (req, res) => {
+        try {
+            const { userId } = req.params;
+
+            const user = await User.findById(userId);
+            if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+            // 🔐 Generate OTP (e.g., 8-digit alphanumeric)
+            const otp = crypto.randomBytes(4).toString("hex");
+            const hashedOtp = await bcrypt.hash(otp, 10);
+
+            user.password = hashedOtp;
+            user.mustChangePassword = true;
+            await user.save();
+
+            return res.status(200).json({ success: true, message: "OTP generated", otp });
+        } catch (err) {
+            return res.status(500).json({ success: false, message: "Error generating OTP", error: err.message });
+        }
+      },
+    // DELETE /users/:id
+     deleteUser :async (req, res) => {
+        try {
+            const userId = req.params.id;
+
+            // Optional: prevent deletion of admin account
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ success: false, message: "User not found" });
+            }
+
+            if (user.role === 'admin') {
+                return res.status(403).json({ success: false, message: "Cannot delete admin user" });
+            }
+
+            await User.findByIdAndDelete(userId);
+
+            return res.status(200).json({ success: true, message: "User deleted successfully" });
+        } catch (error) {
+            console.error("Delete user error:", error.message);
+            return res.status(500).json({ success: false, message: "Failed to delete user" });
+        }
+    }  
 
 };
 
