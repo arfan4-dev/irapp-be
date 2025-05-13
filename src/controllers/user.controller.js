@@ -483,19 +483,18 @@ export const userController = {
 
     changePassword: async (req, res) => {
         try {
-            const { oldPassword, newPassword } = req.body;
+            const { newPassword } = req.body;
             const { id } = req.params; // from token
-            console.log(id);
 
             const user = await User.findById(id);
             if (!user) {
                 return res.status(404).json({ success: false, message: 'User not found' });
             }
 
-            const isMatch = await bcrypt.compare(oldPassword, user.password);
-            if (!isMatch) {
-                return res.status(401).json({ success: false, message: 'Invalid old password' });
-            }
+            // const isMatch = await bcrypt.compare(oldPassword, user.password);
+            // if (!isMatch) {
+            //     return res.status(401).json({ success: false, message: 'Invalid old password' });
+            // }
 
             user.password = await bcrypt.hash(newPassword, SALT_ROUNDS);
             user.mustChangePassword = false; // Set to false after password change
