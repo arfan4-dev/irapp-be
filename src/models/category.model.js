@@ -9,7 +9,8 @@ const itemSchema = new mongoose.Schema({
 
 const categorySchema = new mongoose.Schema({
     label: { type: String, required: true, },
- 
+    departments: [{ type: String }], // changed from `department: String`
+
     enabled: { type: Boolean, default: true },
 
     items: [itemSchema],
