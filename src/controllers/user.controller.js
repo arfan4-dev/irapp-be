@@ -363,7 +363,7 @@ export const userController = {
     refreshToken: async (req, res) => {
         const refreshToken = req.cookies.refreshToken;
 
-        if (!refreshToken) return res.status(400).json({ message: 'No refresh token' });
+        if (!refreshToken) return res.status(400).json({ message: 'Invalid Credentials.' });
 
         try {
             // Verify the refresh token
