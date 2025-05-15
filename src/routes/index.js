@@ -15,6 +15,7 @@ import {
 import {
     createOrder,
     getAllOrders,
+    getOrdersForStaff,
     updateOrderStatus,
 } from '../controllers/order.controller.js';
 import { getSiteConfig, updateSiteConfig } from '../controllers/siteConfig.controller.js';
@@ -59,6 +60,7 @@ router.put('/categories/:categoryId/departments', updateCategoryDepartments);
 router.post('/order', createOrder);
 router.get('/order/all', getAllOrders);
 router.put('/order/:id', updateOrderStatus);
+router.get("/staff-order/:department",  getOrdersForStaff);
 
 // Site Configure
 router.get('/site-config/get', getSiteConfig);
