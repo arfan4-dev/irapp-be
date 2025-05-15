@@ -16,7 +16,7 @@ export const createCategory = async (req, res) => {
 
         const category = new Category({
             label: req.body.label,
-            department:null
+            department: null
         });
 
         await category.save();
@@ -64,10 +64,11 @@ export const updateCategoryLabel = async (req, res) => {
         const { newLabel, enabled } = req.body;
         const updated = await Category.findByIdAndUpdate(
             req.params.id,
-            { label: newLabel,
-                department: newDepartment,
+            {
+                label: newLabel,
+                // department: newDepartment,
                 enabled
-             },
+            },
             { new: true }
         );
         res.json({ success: true, data: updated });
@@ -101,7 +102,7 @@ export const updateCategoryDepartments = async (req, res) => {
         console.error('Update category departments error:', err);
         res.status(500).json({ message: 'Internal server error.' });
     }
-  };
+};
 
 // ➕ Add item to category
 export const addItemToCategory = async (req, res) => {
@@ -141,7 +142,7 @@ export const removeItemFromCategory = async (req, res) => {
 };
 
 
-export const updateItemInCategory =async (req, res) => {
+export const updateItemInCategory = async (req, res) => {
     const { id } = req.params;
     const { oldItemName, newItem } = req.body;
 

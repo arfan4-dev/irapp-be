@@ -19,6 +19,7 @@ import {
 } from '../controllers/order.controller.js';
 import { getSiteConfig, updateSiteConfig } from '../controllers/siteConfig.controller.js';
 import { createDepartment, deleteDepartment, getAllDepartments, updateDepartment } from '../controllers/department.controller.js';
+import { getEmailSettings, updateEmailSettings } from '../controllers/emailSettings.controller.js';
 const router = express.Router();
 
 // Auth routes
@@ -65,9 +66,15 @@ router.post('/site-config/update', upload.fields([
     { name: "logo", maxCount: 1 },
     { name: "favicon", maxCount: 1 },
 ]), updateSiteConfig); // Can be PATCH also if you want
+
 //  Dept route
 router.post('/departments/create', createDepartment);
 router.get('/departments/all', getAllDepartments);
 router.put('/departments/:id', updateDepartment);
 router.delete('/departments/:id', deleteDepartment);
+
+// Email Setting
+
+router.get("/email-settings", getEmailSettings);
+router.put("/email-settings", updateEmailSettings);
 export default router;
