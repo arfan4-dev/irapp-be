@@ -60,6 +60,7 @@ const userSchema = new Schema({
         type: String,
         default: null,
     },
+    otpExpiresAt: { type: Date }
 
 
 });

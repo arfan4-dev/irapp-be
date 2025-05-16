@@ -318,6 +318,17 @@ export const userController = {
                 return res.status(401).json({ success: false, message: 'Invalid password' });
             }
 
+            if (user.mustChangePassword) {
+                const now = new Date();
+
+                if (user.otpExpiresAt && user.otpExpiresAt < now) {
+                    return res.status(403).json({
+                        success: false,
+                        message: "Your OTP has expired. Please contact admin for a new one.",
+                    });
+                }
+            }
+
             // 🔐 Create tokens
             const accessToken = jwt.sign({ id: user._id, email: user.email }, JWT_ACCESS_TOKEN_SECRET_KEY, {
                 expiresIn: '15m'
@@ -357,7 +368,6 @@ export const userController = {
             return res.status(500).json({ success: false, message: 'Invalid Email or Password.' });
         }
     }
-
 
     ,
     refreshToken: async (req, res) => {
@@ -661,7 +671,8 @@ export const userController = {
 
         res.status(200).json(new ApiResponse(200, null, "Password reset successfully"));
     }),
-    generateOtpForUser : async (req, res) => {
+
+    generateOtpForUser: async (req, res) => {
         try {
             const { userId } = req.params;
 
@@ -672,17 +683,22 @@ export const userController = {
             const otp = crypto.randomBytes(4).toString("hex");
             const hashedOtp = await bcrypt.hash(otp, 10);
 
+            const expiryTime = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
+
             user.password = hashedOtp;
             user.mustChangePassword = true;
+            user.otp = hashedOtp;                // store hashed OTP (optional, if verifying later)
+            user.otpExpiresAt = expiryTime;      // set expiry
             await user.save();
 
             return res.status(200).json({ success: true, message: "OTP generated", otp });
         } catch (err) {
             return res.status(500).json({ success: false, message: "Error generating OTP", error: err.message });
         }
-      },
+    },
+
     // DELETE /users/:id
-     deleteUser :async (req, res) => {
+    deleteUser: async (req, res) => {
         try {
             const userId = req.params.id;
 
@@ -703,7 +719,7 @@ export const userController = {
             console.error("Delete user error:", error.message);
             return res.status(500).json({ success: false, message: "Failed to delete user" });
         }
-    }  
+    }
 
 };
 
