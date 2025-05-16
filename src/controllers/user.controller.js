@@ -683,7 +683,7 @@ export const userController = {
             const otp = crypto.randomBytes(4).toString("hex");
             const hashedOtp = await bcrypt.hash(otp, 10);
 
-            const expiryTime = new Date(Date.now() + 1 * 60 * 1000); // 15 minutes from now
+            const expiryTime = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
 
             user.password = hashedOtp;
             user.mustChangePassword = true;
