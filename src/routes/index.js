@@ -23,6 +23,8 @@ import { createDepartment, deleteDepartment, getAllDepartments, updateDepartment
 import { getEmailSettings, updateEmailSettings } from '../controllers/emailSettings.controller.js';
 const router = express.Router();
 
+router.get('/site-config', getSiteConfig);
+
 // Auth routes
 router.post('/user', upload.single('image'), userController.createUser);
 router.post('/login', userController.loginUser);
@@ -55,7 +57,7 @@ router.post('/categories/:id/items', addItemToCategory);                // POST 
 router.delete('/categories/:id/items', removeItemFromCategory);         // DELETE /api/category/:id/items
 router.put('/categories/:id/items', updateItemInCategory);
 router.put('/categories/:categoryId/departments', updateCategoryDepartments);
-
+ 
 // Order routes
 router.post('/order', createOrder);
 router.get('/order/all', getAllOrders);
@@ -63,7 +65,6 @@ router.put('/order/:id', updateOrderStatus);
 router.get("/staff-order/:department",  getOrdersForStaff);
 
 // Site Configure
-router.get('/site-config/get', getSiteConfig);
 router.post('/site-config/update', upload.fields([
     { name: "logo", maxCount: 1 },
     { name: "favicon", maxCount: 1 },
@@ -77,6 +78,6 @@ router.delete('/departments/:id', deleteDepartment);
 
 // Email Setting
 
-router.get("/email-settings", getEmailSettings);
-router.put("/email-settings", updateEmailSettings);
+router.get("/get-email-settings", getEmailSettings);
+router.put("/update-email-settings", updateEmailSettings);
 export default router;

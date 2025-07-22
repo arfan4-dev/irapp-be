@@ -1,34 +1,48 @@
 import EmailSettings from "../models/email.setting.model.js";
-// GET /api/email-settings
-export const getEmailSettings = async (req, res) => {
-    try {
-        const settings = await EmailSettings.findOne().sort({ updatedAt: -1 });
-        if (!settings) return res.status(404).json({ message: "Email settings not found." });
-        res.json(settings);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Error fetching email settings." });
-    }
-};
+import { ApiError, ApiResponse, asyncHandler } from "../utils/api.utils.js";
 
-// PUT /api/email-settings
-export const updateEmailSettings = async (req, res) => {
-    const { sendgridApiKey, fromEmail } = req.body;
+// 🔹 GET: Fetch latest email settings
+export const getEmailSettings = asyncHandler(async (req, res) => {
+    const settings = await EmailSettings.findOne().sort({ updatedAt: -1 });
 
-    if (!sendgridApiKey || !fromEmail) {
-        return res.status(400).json({ message: "All fields are required." });
+    if (!settings) {
+        throw new ApiError(404, "Email settings not found");
     }
 
-    try {
-        const updated = await EmailSettings.findOneAndUpdate(
-            {},
-            { sendgridApiKey, fromEmail },
-            { upsert: true, new: true }
-        );
+    return res.status(200).json(new ApiResponse(200, settings, "Email settings fetched"));
+});
 
-        res.json(updated);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Failed to save email settings." });
+// 🔸 PUT: Update or create email settings
+export const updateEmailSettings = asyncHandler(async (req, res) => {
+    const {
+        provider,
+        fromEmail,
+        apiKey,
+        mailgunDomain,
+        mailgunSecretKey,
+        sesAccessKey,
+        sesSecretKey,
+        sesRegion,
+    } = req.body;
+
+    if (!provider || !fromEmail) {
+        throw new ApiError(400, "Provider and From Email are required");
     }
-};
+
+    const updated = await EmailSettings.findOneAndUpdate(
+        {},
+        {
+            provider,
+            fromEmail,
+            apiKey,
+            mailgunDomain,
+            mailgunSecretKey,
+            sesAccessKey,
+            sesSecretKey,
+            sesRegion,
+        },
+        { upsert: true, new: true }
+    );
+
+    return res.status(200).json(new ApiResponse(200, updated, "Email settings updated"));
+});

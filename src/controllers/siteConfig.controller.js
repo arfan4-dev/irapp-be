@@ -2,13 +2,33 @@ import SiteConfig from '../models/siteConfig.model.js';
 import { asyncHandler, ApiResponse, ApiError } from '../utils/api.utils.js';
 
 // Get site config
-export const getSiteConfig = asyncHandler(async (req, res) => {
-    const config = await SiteConfig.findOne();
-    if (!config) {
-        throw new ApiError(404, "Site config not found");
+export const getSiteConfig = async (req, res) => {
+    try {
+        const config = await SiteConfig.find();
+        console.log("config:", config);
+
+        if (!config) {
+            return res.status(404).json({
+                success: false,
+                message: "Site config not found",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: config,
+            message: "Site Config fetched successfully",
+        });
+    } catch (error) {
+        console.error("Error fetching site config:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch site config",
+            error: error.message,
+        });
     }
-    res.status(200).json(new ApiResponse(200, config, "Site Config fetched successfully"));
-});
+};
+
 
 export const updateSiteConfig = asyncHandler(async (req, res) => {
     try {
