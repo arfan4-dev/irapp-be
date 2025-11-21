@@ -1,65 +1,28 @@
-name: Node.js CI/CD
+name: Deploy to EC2
 
 on:
   push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
-
+    branches:
+      - master
+      
 jobs:
-  # Job to pull latest changes
-  pull_latest_changes:
-    runs-on: self-hosted
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        clean: false
-
-    - name: Pull latest changes
-      run: |
-        git reset --hard
-        git checkout master
-        git pull origin master
-
-  # Job to install dependencies
-  install_dependencies:
-    runs-on: self-hosted
-    needs: pull_latest_changes  # This job depends on the 'pull_latest_changes' job
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        clean: false
-
-    - name: Use Node.js 20.x
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20.x
-        cache: 'npm'
-
-    - name: Install dependencies
-      run: npm ci  # 'npm ci' is faster for CI environments
-
-  # Main build and deploy job
   deploy:
     runs-on: self-hosted
-    needs: install_dependencies  # This job depends on the 'install_dependencies' job
-
+    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        clean: false
-
-    - name: Use Node.js 20.x
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20.x
-        cache: 'npm'
-
-    - name: Run deployment script
-      run: |
-            chmod +x ./deploy.sh
-            ./deploy.sh
+      # Step 1: Server par latest code checkout karein
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        
+      # Step 2: Node.js ka environment set up karein
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          
+      # Step 3: Deployment script ko executable banayein aur chalayein
+      - name: Run Deployment Script
+        run: |
+          chmod +x ./deploy.sh
+          ./deploy.sh
