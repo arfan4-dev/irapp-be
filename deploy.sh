@@ -1,10 +1,9 @@
-#!/bin/bash
-set -e
-echo "====== DEPLOYMENT STARTED ======"
-echo ">>> Pulling latest code from master branch..."
-git pull origin master
-echo ">>> Installing NPM dependencies..."
-npm install --production
-echo ">>> Restarting application with PM2..."
-pm2 restart irapp-be --update-env
-echo "====== DEPLOYMENT COMPLETED SUCCESSFULLY ======"
+====== DEPLOYMENT STARTED ======
+>>> Pulling latest code from master branch...
+Already up to date.
+>>> Installing NPM dependencies...
+... (npm ka output) ...
+>>> Restarting application with PM2...
+[PM2] Applying action restartProcessId on app [irapp-be](ids: 0)
+[PM2] [irapp-be](0) ✓
+====== DEPLOYMENT COMPLETED SUCCESSFULLY ======
