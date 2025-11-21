@@ -20,13 +20,3 @@ jobs:
 
       - name: Run Deployment Script
         run: ./deploy.sh
-
-      - name: Send Slack Notification on Success
-        if: success()
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_COLOR: 'good'
-          SLACK_TITLE: '✅ Deployment Successful'
-          SLACK_MESSAGE: 'Deployment to production server was successful. Latest changes are now live.'
-          SLACK_FOOTER: 'Repository: ${{ github.repository }} | Triggered by: ${{ github.actor }}'
