@@ -244,14 +244,6 @@ export const userController = {
                 return res.status(400).json({ success: false, message: 'Email/Username and password are required' });
             }
 
-            // 🔍 Find by email or username
-            // const user = await User.findOne({
-            //     $or: [
-            //         { email: email.toLowerCase() },
-            //         { username: { $regex: new RegExp(`^${email}$`, 'i') } }
-            //     ]
-            // });
-
             const user = await User.findOne({
 
                 email: email.toLowerCase()

@@ -1,7 +1,6 @@
 // connectDB.js
 import mongoose from 'mongoose';
 import { DATABASE_URL, DB_NAME } from './env.config.js';
-
 const connectDB = async () => {
   try {
     const connectionInstance = await mongoose.connect(DATABASE_URL, {
