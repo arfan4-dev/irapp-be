@@ -1,24 +1,15 @@
-# YEH LINE BILKUL SHURU SE START HONI CHAHIYE, BINA KISI SPACE KE
 name: Deploy Backend to EC2
 
-# 'on:' BHI BILKUL SHURU SE HONA CHAHIYE
 on:
-  # 'push:' 2 spaces ke baad
 push:
-    # 'branches:' 4 spaces ke baad
 branches:
 - master
 
-# 'jobs:' BHI BILKUL SHURU SE HONA CHAHIYE
 jobs:
-  # 'deploy:' 2 spaces ke baad
 deploy:
-    # 'runs-on:' 4 spaces ke baad
 runs - on: self - hosted
-    # 'steps:' 4 spaces ke baad
 steps:
-      # Har step '-' se shuru hota hai, jo 6 spaces ke baad hai
-  - name: Checkout Code
+- name: Checkout Code
 uses: actions / checkout@v4
 
 - name: Setup Node.js
