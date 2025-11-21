@@ -1,4 +1,4 @@
-name: Node CI/CD
+name: Node.js CI/CD
 
 on:
   push:
@@ -7,9 +7,9 @@ on:
     branches: [ "master" ]
 
 jobs:
+  # Job to pull latest changes
   pull_latest_changes:
     runs-on: self-hosted
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -22,9 +22,10 @@ jobs:
         git checkout master
         git pull origin master
 
+  # Job to install dependencies
   install_dependencies:
     runs-on: self-hosted
-    needs: pull_latest_changes
+    needs: pull_latest_changes  # This job depends on the 'pull_latest_changes' job
 
     steps:
     - name: Checkout code
@@ -39,11 +40,12 @@ jobs:
         cache: 'npm'
 
     - name: Install dependencies
-      run: npm ci
+      run: npm ci  # 'npm ci' is faster for CI environments
 
-  build_and_deploy:
+  # Main build and deploy job
+  deploy:
     runs-on: self-hosted
-    needs: install_dependencies
+    needs: install_dependencies  # This job depends on the 'install_dependencies' job
 
     steps:
     - name: Checkout code
@@ -57,10 +59,7 @@ jobs:
         node-version: 20.x
         cache: 'npm'
 
-    - name: Build project
-      run: npm run build --if-present
-
-    - name: Deploy using deploy.sh script
+    - name: Run deployment script
       run: |
             chmod +x ./deploy.sh
             ./deploy.sh
