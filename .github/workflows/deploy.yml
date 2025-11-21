@@ -1,38 +1,41 @@
-# Is workflow ka naam
+# YEH LINE BILKUL SHURU SE START HONI CHAHIYE, BINA KISI SPACE KE
 name: Deploy Backend to EC2
 
-# Yeh workflow kab chalega
+# 'on:' BHI BILKUL SHURU SE HONA CHAHIYE
 on:
-  # Jab 'master' branch par code push kiya jaye
+  # 'push:' 2 spaces ke baad
 push:
+    # 'branches:' 4 spaces ke baad
 branches:
 - master
 
-# Is workflow mein kiye jane wale kaam(jobs)
+# 'jobs:' BHI BILKUL SHURU SE HONA CHAHIYE
 jobs:
-  # Sirf ek job hai jiska naam 'deploy' hai
+  # 'deploy:' 2 spaces ke baad
 deploy:
-    # Is job ko kahan chalana hai ? Hamare apne server par.
-    runs - on: self - hosted
-
-    # Is job ke steps
+    # 'runs-on:' 4 spaces ke baad
+runs - on: self - hosted
+    # 'steps:' 4 spaces ke baad
 steps:
-      # Step 1: Code ko server par checkout karna
-      # 'actions/checkout' ek pre - made action hai jo code ko server par lata hai
-      # Lekin hamara code server par pehle se hai, isliye hum sirf pull karenge.
-      # Phir bhi, yeh step runner ko sahi context dene ke liye zaroori hai.
-      - name: Checkout Code
+      # Har step '-' se shuru hota hai, jo 6 spaces ke baad hai
+  - name: Checkout Code
 uses: actions / checkout@v4
 
-      # Step 2: Node.js ka environment set karna(optional lekin a a hai)
-      # Yeh step yaqeen dilata hai ke runner sahi Node.js version istemal kar raha hai
-    - name: Setup Node.js
+- name: Setup Node.js
 uses: actions / setup - node@v4
 with:
-node - version: '20.x' # Wahi version use karein jo aapke server par hai
+node - version: '20.x'
 cache: 'npm'
 
-      # Step 3: Hamari deployment script ko chalana
-      # Yeh woh script hai jo humne Step 2 mein server par banayi thi
-    - name: Run Deployment Script
+  - name: Run Deployment Script
 run: ./ deploy.sh
+
+  - name: Send Slack Notification on Success
+if: success()
+uses: rtCamp / action - slack - notify@v2
+env:
+SLACK_WEBHOOK_URL: ${ { secrets.SLACK_WEBHOOK_URL } }
+SLACK_COLOR: 'good'
+SLACK_TITLE: '✅ Deployment Successful'
+SLACK_MESSAGE: 'Deployment to production server was successful. Latest changes are now live.'
+SLACK_FOOTER: 'Repository: ${{ github.repository }} | Triggered by: ${{ github.actor }}'
