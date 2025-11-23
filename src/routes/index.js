@@ -49,9 +49,9 @@ router.post("/admin/create-user", upload.single("image"), userController.createU
 router.get('/:id', authMiddleware, userController.getUser);
 
 // Category routes
-router.post('/categories', createCategory);                              // POST /api/category
-router.get('/categories/all', getAllCategories);                        // GET /api/category
-router.delete('/categories/:id', deleteCategory);                       // DELETE /api/category/:id
+router.post('/categories', createCategory);                             
+router.get('/categories/all', getAllCategories);                        
+router.delete('/categories/:id', deleteCategory);                     
 router.put('/categories/:id', updateCategoryLabel);                     // PUT /api/category/:id
 router.post('/categories/:id/items', addItemToCategory);                // POST /api/category/:id/items
 router.delete('/categories/:id/items', removeItemFromCategory);         // DELETE /api/category/:id/items
